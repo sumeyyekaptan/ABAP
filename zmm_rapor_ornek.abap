@@ -1,7 +1,6 @@
 *&---------------------------------------------------------------------*
 *& Report  ZMM_RAPOR_ORNEK
 *&
-*& ALV KULLANIMI && rapor hazırlama
 *&
 *&---------------------------------------------------------------------*
 *&
@@ -15,20 +14,31 @@ TYPE-POOLS: slis.
 
 DATA : BEGIN OF gt_list OCCURS 0 ,
 
-          sorgu_tar LIKE ZMM_TLP_HVZ-sorgu_tar,
-          OEM_NO    LIKE ZMM_TLP_HVZ-OEM_NO,
-          MIKTAR    LIKE ZMM_TLP_HVZ-MIKTAR,
-          IP_ADR    LIKE ZMM_TLP_HVZ-IP_ADR,
-          KUNNR     LIKE ZMM_TLP_HVZ-KUNNR,
-          KAYNAK    LIKE ZMM_TLP_HVZ-KAYNAK,
-          ukle      LIKE ZMM_TLP_HVZ-UKLE,
-          NAME1     LIKE kna1-NAME1,
-          LAND1     LIKE kna1-LAND1,
-          hrc_drm   LIKE ZMM_TLP_HVZ-hrc_drm,
+         sorgu_tar LIKE zmm_tlp_hvz-sorgu_tar,
+         oem_no    LIKE zmm_tlp_hvz-oem_no,
+         miktar    LIKE zmm_tlp_hvz-miktar,
+         ip_adr    LIKE zmm_tlp_hvz-ip_adr,
+         kunnr     LIKE zmm_tlp_hvz-kunnr,
+         kaynak    LIKE zmm_tlp_hvz-kaynak,
+         ukle      LIKE zmm_tlp_hvz-ukle,
+         name1     LIKE kna1-name1,
+         land1     LIKE kna1-land1,
+         hrc_drm   LIKE zmm_tlp_hvz-hrc_drm,
 
        END OF gt_list.
 
-DATA : gt_kna1 TYPE kna1 OCCURS 0 WITH HEADER LINE.
+DATA : BEGIN OF gt_kna1 OCCURS 0 ,
+
+
+         kunnr LIKE kna1-kunnr,
+
+         name1 LIKE kna1-name1,
+         land1 LIKE kna1-land1,
+
+
+       END OF gt_kna1.
+
+"DATA : gt_kna1 TYPE kna1 OCCURS 0 WITH HEADER LINE.
 
 
 DATA: fieldcatalog TYPE slis_t_fieldcat_alv WITH HEADER LINE.
@@ -39,9 +49,9 @@ DATA: it_fieldcat  TYPE lvc_t_fcat,     "slis_t_fieldcat_alv WITH HEADER LINE,
       gd_repid     LIKE sy-repid.
 
 SELECTION-SCREEN BEGIN OF BLOCK blk1. "seçim kriterleri
-SELECT-OPTIONS: so_tarih  FOR ZMM_TLP_HVZ-sorgu_tar .
-SELECT-OPTIONS: sorgu     FOR ZMM_TLP_HVZ-KAYNAK .
-SELECT-OPTIONS: MUSTERI   FOR ZMM_TLP_HVZ-KUNNR .
+SELECT-OPTIONS: so_tarih  FOR zmm_tlp_hvz-sorgu_tar .
+SELECT-OPTIONS: sorgu     FOR zmm_tlp_hvz-kaynak .
+SELECT-OPTIONS: musteri   FOR zmm_tlp_hvz-kunnr .
 SELECTION-SCREEN END OF BLOCK blk1.
 
 PARAMETERS: h_durumu AS CHECKBOX DEFAULT 'X'.
@@ -60,25 +70,35 @@ PERFORM display_alv_report.
 *----------------------------------------------------------------------*
 FORM get_data .
 
-    SELECT * into CORRESPONDING FIELDS OF TABLE gt_list from zmm_tlp_hvz
-    WHERE sorgu_tar in so_tarih
-     AND ZMM_TLP_HVZ~KUNNR IN musteri
-     and hrc_drm = h_durumu
-     AND ZMM_TLP_HVZ~KAYNAK IN sorgu.
+  SELECT * INTO CORRESPONDING FIELDS OF TABLE gt_list FROM zmm_tlp_hvz
+  WHERE sorgu_tar IN so_tarih
+   AND zmm_tlp_hvz~kunnr IN musteri
+   AND hrc_drm = h_durumu
+   AND zmm_tlp_hvz~kaynak IN sorgu.
 
-"SELECT * into CORRESPONDING FIELDS OF TABLE gt_kna1 from kna1.
-SELECT * from kna1 INTO CORRESPONDING FIELDS OF TABLE gt_kna1.
-LOOP AT gt_list.
+  SELECT * FROM kna1 INTO CORRESPONDING FIELDS OF TABLE gt_kna1.
 
-  READ TABLE gt_kna1 WITH KEY kunnr = gt_list-kunnr.
-  IF sy-subrc = 0.
+  LOOP AT gt_list.
 
-    gt_list-name1 = gt_kna1-name1.
-    gt_list-land1 = gt_kna1-land1.
+    IF gt_list-kaynak = 'B2B' AND gt_list-kunnr = '' OR gt_list-kaynak ='SIP' AND gt_list-kunnr = ''.
 
-  ENDIF.
-  MODIFY gt_list.
+      gt_list-name1 = 'HATALI KAYIT'.
+      gt_list-land1 = 'XXX'.
+      MODIFY gt_list.
+
+    ELSEIF gt_list-kunnr <> ''.
+      READ TABLE gt_kna1 WITH KEY kunnr = gt_list-kunnr.
+      IF sy-subrc = 0.
+
+        gt_list-name1 = gt_kna1-name1.
+        gt_list-land1 = gt_kna1-land1.
+
+      ENDIF.
+      MODIFY gt_list.
+
+    ENDIF.
   ENDLOOP.
+
 
 ENDFORM.                    " GET_DATE
 *&---------------------------------------------------------------------*
@@ -92,70 +112,70 @@ ENDFORM.                    " GET_DATE
 FORM build_fieldcatalog . " listede görüntülenecek olanlar
 
   wa_fieldcat-fieldname   = 'sorgu_tar'.
-  wa_fieldcat-scrtext_m   = 'Tarih'.
+  wa_fieldcat-scrtext_m   = text-001. " 'Tarih'.
   fieldcatalog-outputlen   = 10.
   wa_fieldcat-col_pos     = 1.
   APPEND wa_fieldcat TO it_fieldcat.
   CLEAR  wa_fieldcat.
 
   wa_fieldcat-fieldname   = 'oem_no'.
-  wa_fieldcat-scrtext_m   = 'Oem No'.
+  wa_fieldcat-scrtext_m   = text-002. "'Oem No'.
   fieldcatalog-outputlen   = 10.
   wa_fieldcat-col_pos     = 2.
   APPEND wa_fieldcat TO it_fieldcat.
   CLEAR  wa_fieldcat.
 
   wa_fieldcat-fieldname   = 'MIKTAR'.
-  wa_fieldcat-scrtext_m   = 'Miktar'.
+  wa_fieldcat-scrtext_m   = text-003. "'Miktar'.
   fieldcatalog-outputlen   = 10.
   wa_fieldcat-col_pos     = 3.
   APPEND wa_fieldcat TO it_fieldcat.
   CLEAR  wa_fieldcat.
 
   wa_fieldcat-fieldname   = 'IP_ADR'.
-  wa_fieldcat-scrtext_m   = 'Ip'.
+  wa_fieldcat-scrtext_m   = text-004. "'Ip'.
   fieldcatalog-outputlen   = 10.
   wa_fieldcat-col_pos     = 4.
   APPEND wa_fieldcat TO it_fieldcat.
   CLEAR  wa_fieldcat.
 
   wa_fieldcat-fieldname   = 'KUNNR'.
-  wa_fieldcat-scrtext_m   = 'Müsteri Kodu'.
+  wa_fieldcat-scrtext_m   = text-005. "'Müsteri Kodu'.
   fieldcatalog-outputlen   = 10.
   wa_fieldcat-col_pos     = 5.
   APPEND wa_fieldcat TO it_fieldcat.
   CLEAR  wa_fieldcat.
 
   wa_fieldcat-fieldname   = 'NAME1'.
-  wa_fieldcat-scrtext_m   = 'Müşteri Adı'.
+  wa_fieldcat-scrtext_m   = text-006. "'Müşteri Adı'.
   fieldcatalog-outputlen   = 10.
   wa_fieldcat-col_pos     = 6.
   APPEND wa_fieldcat TO it_fieldcat.
   CLEAR  wa_fieldcat.
 
   wa_fieldcat-fieldname   = 'UKLE'.
-  wa_fieldcat-scrtext_m   = 'Sorgulanan Ülke'.
+  wa_fieldcat-scrtext_m   = text-007. "'Sorgulanan Ülke'.
   fieldcatalog-outputlen   = 10.
   wa_fieldcat-col_pos     = 7.
   APPEND wa_fieldcat TO it_fieldcat.
   CLEAR  wa_fieldcat.
 
   wa_fieldcat-fieldname   = 'LAND1'.
-  wa_fieldcat-scrtext_m   = 'Müşteri Ülkesi'.
+  wa_fieldcat-scrtext_m   = text-008. "'Müşteri Ülkesi'.
   fieldcatalog-outputlen   = 10.
   wa_fieldcat-col_pos     = 8.
   APPEND wa_fieldcat TO it_fieldcat.
   CLEAR  wa_fieldcat.
 
   wa_fieldcat-fieldname   = 'hrc_drm'.
-  wa_fieldcat-scrtext_m   = 'Harici Durumu'.
+  wa_fieldcat-scrtext_m   = text-009. "'Harici Durumu'.
   fieldcatalog-outputlen   = 10.
   wa_fieldcat-col_pos     = 9.
   APPEND wa_fieldcat TO it_fieldcat.
   CLEAR  wa_fieldcat.
 
   wa_fieldcat-fieldname   = 'KAYNAK'.
-  wa_fieldcat-scrtext_m   = 'Sorguladığı Kaynak'.
+  wa_fieldcat-scrtext_m   = text-010. "'Sorguladığı Kaynak'.
   fieldcatalog-outputlen   = 10.
   wa_fieldcat-col_pos     = 10.
   APPEND wa_fieldcat TO it_fieldcat.
@@ -172,9 +192,9 @@ ENDFORM.                    " BUILD_FIELDCATALOG
 *----------------------------------------------------------------------*
 FORM build_layout .
 
- gd_layout-stylefname = 'FIELD_STYLE'.
- gd_layout-zebra      = 'X'.
- gd_layout-cwidth_opt = 'X'.
+  gd_layout-stylefname = 'FIELD_STYLE'.
+  gd_layout-zebra      = 'X'.
+  gd_layout-cwidth_opt = 'X'.
 
 ENDFORM.                    " BUILD_LAYOUT
 *&---------------------------------------------------------------------*
@@ -186,7 +206,7 @@ ENDFORM.                    " BUILD_LAYOUT
 *  <--  p2        text
 *----------------------------------------------------------------------*
 FORM display_alv_report .
- gd_repid = sy-repid.
+  gd_repid = sy-repid.
 
   CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY_LVC'
     EXPORTING
@@ -207,23 +227,25 @@ FORM display_alv_report .
 ENDFORM.                    " DISPLAY_ALV_REPORT
 
 DATA: BEGIN OF lt_kaynak OCCURS 0,
-        kaynak     LIKE zmm_tlp_hvz-kaynak,
+        kaynak LIKE zmm_tlp_hvz-kaynak,
         "marka_txt  LIKE zmm_urun_markat-marka_txt,
       END OF lt_kaynak.
 
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR  : sorgu-low.
   PERFORM marka_searchhelp.
-  INITIALIZATION.
+
+INITIALIZATION.
   PERFORM init_selection.
 
-  AT SELECTION-SCREEN ON VALUE-REQUEST FOR  : sorgu-high.
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR  : sorgu-high.
   PERFORM marka_searchhelp.
-  INITIALIZATION.
+
+INITIALIZATION.
   PERFORM init_selection.
 FORM marka_searchhelp .
 
-    CALL FUNCTION 'F4IF_INT_TABLE_VALUE_REQUEST'
+  CALL FUNCTION 'F4IF_INT_TABLE_VALUE_REQUEST'
     EXPORTING
       retfield        = 'KAYNAK'
       dynpprog        = sy-cprog
@@ -261,7 +283,7 @@ ENDFORM.                    " MARKA_SEARCHHELP
 *----------------------------------------------------------------------*
 FORM init_selection .
 
-SELECT DISTINCT kaynak from zmm_tlp_hvz
+  SELECT DISTINCT kaynak FROM zmm_tlp_hvz
   INTO CORRESPONDING FIELDS OF TABLE
   lt_kaynak.
 ENDFORM.                    " INIT_SELECTION
