@@ -1,12 +1,10 @@
 *&---------------------------------------------------------------------*
 *& Report  ZMM_RAPOR_ORNEK
 *&
-*& OLUŞTURULAN BİR TABLODAN KISITLAR VEREREK RAPOR ÇEKME
-*& INNER JOINLE FARKLI TABLO ALANLARINI BİRLEŞTİRME
-*& ALV KULLANIMI
+*& ALV KULLANIMI && rapor hazırlama
 *&
 *&---------------------------------------------------------------------*
-*&en düzgün çalışan bu. tek sorun boş olanları almıyor
+*&
 *&---------------------------------------------------------------------*
 
 REPORT zmm_rapor_ornek.
