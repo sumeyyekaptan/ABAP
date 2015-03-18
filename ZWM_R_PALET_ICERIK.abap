@@ -1,5 +1,14 @@
-REPORT Z_GB.
+*&---------------------------------------------------------------------*
+*& Report  ZWM_R_PALET_ICERIK
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
 
+REPORT ZWM_R_PALET_ICERIK.
+
+TABLES:VEKP, VEPO, MARA, LTAP, KNA1, LIKP, ZWM_T_PICKING.
 TYPE-POOLS: SLIS.
 DATA: GT_FIELDCAT_LIST1 TYPE SLIS_T_FIELDCAT_ALV,
       GT_FIELDCAT_LIST2 TYPE SLIS_T_FIELDCAT_ALV,
@@ -14,6 +23,7 @@ DATA : BEGIN OF GT_LIST1 OCCURS 0,
          BRGEW       LIKE VEKP-BRGEW,  "tek bir malzemeye ait birim brut agirlik kg
          TOTAL_BRGEW LIKE VEKP-BRGEW,  "toplam kg
        END OF GT_LIST1.
+
 DATA : BEGIN OF GT_LIST2 OCCURS 0 ,
 
          EXIDV LIKE VEKP-EXIDV,  "TAŞIMA BİRİMİ
@@ -31,9 +41,6 @@ DATA : BEGIN OF GT_LIST3 OCCURS 0,
          STATUS TYPE STRING,
          PLT_NO LIKE VEKP-EXIDV,
          NLPLA  LIKE LTAP-NLPLA,
-
-         NAME1  LIKE KNA1-NAME1,
-         NAME2  LIKE KNA1-NAME2,
 
        END OF GT_LIST3.
 
@@ -289,4 +296,4 @@ FORM TABLOLARI_GOSTER .
     WITH SY-MSGV1 SY-MSGV2 SY-MSGV3 SY-MSGV4.
   ENDIF.
 
-ENDFORM.                    " TABLOLARI_GOSTER
+ENDFORM.                  " TABLOLARI_GOSTER
