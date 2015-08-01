@@ -1,0 +1,32 @@
+FUNCTION Z_TEST4_END_PROG.
+*"----------------------------------------------------------------------
+*"*"Local Interface:
+*"  IMPORTING
+*"     REFERENCE(ID)
+*"     REFERENCE(S_DATUM) TYPE  DATUM
+*"     REFERENCE(S_UZEIT) TYPE  UZEIT
+*"     REFERENCE(STATU)
+*"  EXPORTING
+*"     REFERENCE(E_UZEIT) TYPE  UZEIT
+*"     REFERENCE(TIME) TYPE  TIMS
+*"     REFERENCE(E_DATUM) TYPE  DATUM
+*"----------------------------------------------------------------------
+  " WAIT UP TO 5 SECONDS.
+
+  " E_UZEIT = SY-UZEIT.
+
+  GET TIME FIELD E_UZEIT.
+  E_DATUM = SY-DATUM.
+
+  TIME = E_UZEIT - S_UZEIT.
+
+  UPDATE ZTEST_TABLE_5 SET STATU = '1'
+                     WHERE ID = ID
+                       AND STATU = '0'.
+  UPDATE ZTEST_TABLE_5 SET E_UZEIT = E_UZEIT
+                           TIME    = TIME
+                           E_DATUM = E_DATUM
+                     WHERE ID = ID.
+
+
+ENDFUNCTION.
