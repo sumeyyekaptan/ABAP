@@ -20,7 +20,7 @@ DATA : BEGIN OF gt_list OCCURS 0 ,
          ip_adr    LIKE zmm_tlp_hvz-ip_adr,
          kunnr     LIKE zmm_tlp_hvz-kunnr,
          kaynak    LIKE zmm_tlp_hvz-kaynak,
-         ukle      LIKE zmm_tlp_hvz-ukle,
+         ulke      LIKE zmm_tlp_hvz-ulke,
          name1     LIKE kna1-name1,
          land1     LIKE kna1-land1,
          hrc_drm   LIKE zmm_tlp_hvz-hrc_drm,
@@ -61,7 +61,7 @@ PERFORM build_fieldcatalog.
 PERFORM build_layout.
 PERFORM display_alv_report.
 *&---------------------------------------------------------------------*
-*&      Form  GET_DATE
+*&      Form  GET_DATA
 *&---------------------------------------------------------------------*
 *       text
 *----------------------------------------------------------------------*
@@ -100,7 +100,7 @@ FORM get_data .
   ENDLOOP.
 
 
-ENDFORM.                    " GET_DATE
+ENDFORM.                    " GET_DAT
 *&---------------------------------------------------------------------*
 *&      Form  BUILD_FIELDCATALOG
 *&---------------------------------------------------------------------*
@@ -153,7 +153,7 @@ FORM build_fieldcatalog . " listede görüntülenecek olanlar
   APPEND wa_fieldcat TO it_fieldcat.
   CLEAR  wa_fieldcat.
 
-  wa_fieldcat-fieldname   = 'UKLE'.
+  wa_fieldcat-fieldname   = 'ULKE'.
   wa_fieldcat-scrtext_m   = text-007. "'Sorgulanan Ülke'.
   fieldcatalog-outputlen   = 10.
   wa_fieldcat-col_pos     = 7.
